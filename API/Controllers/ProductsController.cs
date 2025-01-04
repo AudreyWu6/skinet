@@ -1,6 +1,7 @@
 // DI container, Repository Pattern, DbContext, Migrations, and API Controller
 using API.Dtos;
 using API.Errors;
+using API.Helpers;
 using AutoMapper;
 using Core.Entities;
 using Core.interfaces;
@@ -28,12 +29,26 @@ public class ProductsController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ProductToReturnDto>>> GetProducts()
+    public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts(
+       [FromQuery]ProductSpecParams productParams)
     {
-        var spec = new ProductsWithTypesAndBrandsSpecification();
+        var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
+        var countspec = new ProductWithFiltersForCountSpecification(productParams);
+
+        var totalItems = await _productRepo.CountAsync(countspec);
+        
+        
         var products = await _productRepo.ListAsync(spec);
-        return Ok(_mapper.
-            Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products));
+
+        var data = _mapper.
+            Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
+
+        return Ok(new Pagination<ProductToReturnDto>(productParams.PageIndex,productParams.PageSize, totalItems, data));
+    }
+
+    private object Pagination<T>(int pageIndex, int pageSize, int totalItems, IReadOnlyList<T> data)
+    {
+        throw new NotImplementedException();
     }
 
     [HttpGet("{id}")]
@@ -42,7 +57,9 @@ public class ProductsController : BaseApiController
     public  async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
     {
         var spec = new ProductsWithTypesAndBrandsSpecification(id);
+        
         var product = await _productRepo.GetEntityWithSpec(spec);
+
         if (product == null) return NotFound(new ApiResponse(404));
         return _mapper.Map<Product, ProductToReturnDto>(product);
     }
