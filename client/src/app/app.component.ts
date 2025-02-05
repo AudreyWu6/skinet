@@ -19,8 +19,7 @@ export class AppComponent implements OnInit {
         next: response => this.products = response.data,
         error: error => console.log(error), // what to do when the request fails
         complete: () => {
-          console.log('Request completed')
-          console.log('This is the end of the request')
+          console.log('Request completed');
         }
       })
   }
