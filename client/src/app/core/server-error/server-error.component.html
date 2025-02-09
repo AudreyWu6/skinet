@@ -1,11 +1,14 @@
 <div class="container mt-5">
-    <button (click)="get500Error()" class="btn btn-outline-primary me-3">Test 500 error</button>
-    <button (click)="get404Error()" class="btn btn-outline-primary me-3">Test 404 error</button>
-    <button (click)="get400Error()" class="btn btn-outline-primary me-3">Test 400 error</button>
-    <button (click)="get400ValidationError()" class="btn btn-outline-primary me-3">Test 400 validation error</button>
-    <div class="row mt-5" *ngIf="validationErrors.length > 0">
-        <ul class="text-danger">
-            <li *ngFor="let error of validationErrors">{{error}}</li>
-        </ul>
-    </div>
+    <h4>Internal server error - refreshing will make the error disappear</h4>
+    <ng-container *ngIf="error">
+        <h5 class="text-danger">Error: {{error.message}}</h5>
+        <p class="font-weight-bold">This error comes from the server - not Angular</p>
+        <p>What to do next?</p>
+        <ol>
+            <li>Check the network tab in chrome dev tools</li>
+            <li>Reproduce the request in postman - if the same error occurs then definately not angular!</li>
+        </ol>
+        <h5>Stack trace</h5>
+        <code class="mt-5" style="background-color: whitesmoke;">{{error.details}}</code>
+    </ng-container>
 </div>
